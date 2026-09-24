@@ -41,6 +41,7 @@
 #endif
 
 #include <cstdint>
+#include <limits>
 #include <utility>
 
 namespace vtx
@@ -127,20 +128,36 @@ namespace vtx
     class INA226
     {
     public:
-        explicit INA226(float const shunt_resistance)
-            : m_shunt_resistance(shunt_resistance)
+        INA226(float const shunt_resistance, float const current_range)
         {
+            set_shunt_resistor_range(shunt_resistance, current_range);
         }
 
-        void set_shunt_resistance(float const resistance)
+        bool set_shunt_resistor_range(float const resistance, float const current_range)
         {
-            m_shunt_resistance = resistance;
-            update_calibration();
+            if (current_range <= 0.f || resistance <= 0.f)
+            {
+                return false;
+            }
+
+            m_current_resolution = current_range / 32768.f;
+            m_power_resolution = 25.f * m_current_resolution;
+
+            auto const cal = 0.00512f / (m_current_resolution * resistance);
+
+            if (cal > std::numeric_limits<std::uint16_t>::max())
+            {
+                return false;
+            }
+
+            write(ina226_register::calibration, static_cast<std::uint16_t>(cal));
+            return true;
         }
 
         static void reset()
         {
-            write(ina226_register::configuration, 0b1000'0000'0000'0000);
+            constexpr std::uint16_t ina_reset{0x8000};
+            write(ina226_register::configuration, ina_reset);
         }
 
         static void set_averaging_mode(ina226_averaging const averaging_mode)
@@ -202,7 +219,7 @@ namespace vtx
         [[nodiscard]]
         float get_power() const
         {
-            return read_signed_scaled(ina226_register::power, 25.f * m_current_resolution);
+            return read_signed_scaled(ina226_register::power, m_power_resolution);
         }
 
         [[nodiscard]]
@@ -279,7 +296,7 @@ namespace vtx
 
             return HAL_I2C_Mem_Write(
                 Hi2c,
-                DeviceAddress,
+                DeviceAddress << 1,
                 static_cast<std::uint8_t>(reg),
                 I2C_MEMADD_SIZE_8BIT,
                 data,
@@ -300,11 +317,7 @@ namespace vtx
                 (reg_value & ~mask) | ((static_cast<std::uint16_t>(value) << offset) & mask));
         }
 
-        void update_calibration()
-        {
-        }
-
         float m_current_resolution{};
-        float m_shunt_resistance{};
+        float m_power_resolution{};
     };
 }
