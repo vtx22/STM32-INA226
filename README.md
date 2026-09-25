@@ -31,15 +31,15 @@ The INA226 can measure:
 ```C++
 #include <INA226.h>
 
-using namespace vtx;
+using namespace vtx::ina226;
 
 int main()
 {
     // Create INA226 object, specify I2C interface and address
     INA226<&hi2c1,
-        ina226_address_from_pins(
-            ina226_address_pin::gnd,
-            ina226_address_pin::gnd)> ina{};
+        address_from_pins(
+            address_pin::gnd,
+            address_pin::gnd)> ina{};
     
     // Check if the INA226 responds via I2C
     if (!ina.is_available())
