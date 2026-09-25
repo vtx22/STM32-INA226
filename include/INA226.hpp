@@ -134,10 +134,42 @@ namespace vtx
      * @param rhs Right-hand mask flag.
      * @return Combined mask flags.
      */
+    [[nodiscard]]
     constexpr ina226_mask_enable operator|(ina226_mask_enable const lhs, ina226_mask_enable const rhs)
     {
         return static_cast<ina226_mask_enable>(
             static_cast<std::uint8_t>(lhs) | static_cast<std::uint8_t>(rhs));
+    }
+
+    // Available connections for the address pins A0 and A1
+    enum class ina226_address_pin : std::uint8_t
+    {
+        gnd,
+        vs,
+        sda,
+        scl
+    };
+
+    /**
+     * @brief Gets the INA226 I2C address from the A0 and A1 address pin states.
+     *
+     * @param a0 The state of the A0 pin. GND = false, VS = true
+     * @param a1 The state of the A1 pin. GND = false, VS = true
+     * @return The resulting I2C address.
+     */
+    [[nodiscard]]
+    constexpr std::uint8_t ina226_address_from_pins(
+        ina226_address_pin const a0,
+        ina226_address_pin const a1)
+    {
+        constexpr std::uint8_t addresses[4][4] = {
+            {0b1000000, 0b1000010, 0b1000001, 0b1000011},
+            {0b1000100, 0b1000110, 0b1000101, 0b1000111},
+            {0b1000001, 0b1000011, 0b1000000, 0b1000010},
+            {0b1000101, 0b1000111, 0b1000100, 0b1000110},
+        };
+
+        return addresses[static_cast<std::uint8_t>(a0)][static_cast<std::uint8_t>(a1)];
     }
 
     template <I2C_HandleTypeDef* Hi2c, std::uint8_t DeviceAddress>
