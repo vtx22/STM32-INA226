@@ -159,8 +159,8 @@ namespace vtx
         /**
          * @brief Gets the INA226 I2C address from the A0 and A1 address pin states.
          *
-         * @param a0 The state of the A0 pin. GND = false, VS = true
-         * @param a1 The state of the A1 pin. GND = false, VS = true
+         * @param a0 The connection of the A0 pin.
+         * @param a1 The connection of the A1 pin.
          * @return The resulting I2C address.
          */
         [[nodiscard]]
