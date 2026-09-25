@@ -46,6 +46,7 @@
 
 namespace vtx
 {
+    // All available 16 Bit R/W data registers
     enum class ina226_register : std::uint8_t
     {
         configuration = 0x00,
@@ -60,6 +61,7 @@ namespace vtx
         die_id = 0xFF,
     };
 
+    // Number of samples to average
     enum class ina226_averaging : std::uint8_t
     {
         average_1 = 0b000,
@@ -72,6 +74,7 @@ namespace vtx
         average_1024 = 0b111
     };
 
+    // Shunt voltage conversion time
     enum class ina226_shunt_voltage_conversion_time : std::uint8_t
     {
         conv_140us = 0b000,
@@ -83,6 +86,7 @@ namespace vtx
         conv_4156us = 0b110
     };
 
+    // Bus voltage conversion time
     enum class ina226_bus_voltage_conversion_time : std::uint8_t
     {
         conv_140us = 0b000,
@@ -95,6 +99,7 @@ namespace vtx
         conv_8244us = 0b111
     };
 
+    // Device power/operation modes
     enum class ina226_operation_mode : std::uint8_t
     {
         power_down = 0b000,
@@ -106,6 +111,7 @@ namespace vtx
         shunt_bus_continuous = 0b111
     };
 
+    // Alert pin related flags
     enum class ina226_mask_enable : std::uint16_t
     {
         shunt_voltage_overvoltage = 1u << 15,
@@ -270,7 +276,6 @@ namespace vtx
          * @details
          * The INA226 shunt voltage resolution is 2.5 uV/Bit.
          */
-
         [[nodiscard]]
         static float get_shunt_voltage()
         {
