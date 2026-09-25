@@ -48,7 +48,7 @@ int main()
     }
     
     // Specify your shunt resistance (10 mOhm here) 
-    // and the maximum current you are expecting (5A here)
+    // and the maximum current you are expecting (5 A here)
     ina.set_shunt_resistor_range(10e-3f, 5.f);
     
     while (true)
