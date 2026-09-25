@@ -46,6 +46,9 @@
 
 namespace vtx
 {
+    // Fixed INA226 manufacturer id stored in register 0xFE
+    constexpr std::uint32_t ina226_default_manufacturer_id = 0x5449u;
+
     // All available 16 Bit R/W data registers
     enum class ina226_register : std::uint8_t
     {
@@ -178,6 +181,22 @@ namespace vtx
     public:
         INA226() = default;
         ~INA226() = default;
+
+
+        /**
+         * @brief Checks if the INA226 is available via I2C.
+         * @details Checks availability by reading the fixed value manufacturer id register 0xFE
+         *
+         * @param timeout Maximum time in ms to wait for the INAs response (optional, default 100ms)
+         *
+         * @retval true Read successful, INA226 available
+         * @retval false Read unsuccessful, INA226 not reachable
+         */
+        [[nodiscard]]
+        bool is_available(std::uint32_t const timeout = 100u)
+        {
+            return read(ina226_register::manufacturer_id, timeout) == ina226_default_manufacturer_id;
+        }
 
         /**
          * @brief Configures the shunt resistor value and current measurement range.
@@ -438,7 +457,7 @@ namespace vtx
          * @return Raw 16-bit register value.
          */
         [[nodiscard]]
-        static std::uint16_t read(ina226_register const reg)
+        static std::uint16_t read(ina226_register const reg, std::uint32_t const timeout = HAL_MAX_DELAY)
         {
             std::uint8_t data[2]{};
 
@@ -449,7 +468,7 @@ namespace vtx
                 I2C_MEMADD_SIZE_8BIT,
                 data,
                 2,
-                HAL_MAX_DELAY);
+                timeout);
 
             return (static_cast<std::uint16_t>(data[0]) << 8) | data[1];
         }
