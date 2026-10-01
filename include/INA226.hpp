@@ -240,7 +240,7 @@ namespace vtx
              * Writes the reset bit to the INA226 configuration register.
              * After reset, the device returns to its default register values.
              */
-            static void reset()
+            constexpr void reset() const
             {
                 constexpr std::uint16_t ina_reset{0x8000};
                 write(data_register::configuration, ina_reset);
@@ -255,7 +255,7 @@ namespace vtx
              *
              * @see averaging
              */
-            static void set_averaging_mode(averaging const averaging_mode)
+            constexpr void set_averaging_mode(averaging const averaging_mode) const
             {
                 auto const config_register = read(data_register::configuration);
 
@@ -273,7 +273,7 @@ namespace vtx
              *
              * @see bus_voltage_conversion_time
              */
-            static void set_bus_voltage_conversion_time(bus_voltage_conversion_time const time)
+            constexpr void set_bus_voltage_conversion_time(bus_voltage_conversion_time const time) const
             {
                 auto const config_register = read(data_register::configuration);
 
@@ -291,7 +291,7 @@ namespace vtx
              *
              * @see shunt_voltage_conversion_time
              */
-            static void set_shunt_voltage_conversion_time(shunt_voltage_conversion_time const time)
+            constexpr void set_shunt_voltage_conversion_time(shunt_voltage_conversion_time const time) const
             {
                 auto const config_register = read(data_register::configuration);
 
@@ -310,7 +310,7 @@ namespace vtx
              *
              * @see operation_mode
              */
-            static void set_operation_mode(operation_mode const mode)
+            constexpr void set_operation_mode(operation_mode const mode) const
             {
                 auto const config_register = read(data_register::configuration);
 
@@ -330,7 +330,7 @@ namespace vtx
              * The INA226 shunt voltage resolution is 2.5 uV/Bit.
              */
             [[nodiscard]]
-            static float get_shunt_voltage()
+            constexpr float get_shunt_voltage() const
             {
                 constexpr float shunt_voltage_resolution{2.5e-6f};
                 return read_scaled(data_register::shunt_voltage, shunt_voltage_resolution);
@@ -347,7 +347,7 @@ namespace vtx
              * The INA226 bus voltage resolution is 1.25 mV/Bit.
              */
             [[nodiscard]]
-            static float get_bus_voltage()
+            constexpr float get_bus_voltage() const
             {
                 constexpr float bus_voltage_resolution{1.25e-3f};
                 return read_signed_scaled(data_register::bus_voltage, bus_voltage_resolution);
@@ -364,7 +364,7 @@ namespace vtx
              * @note The device must be calibrated using @ref set_shunt_resistor_range before this value is meaningful.
              */
             [[nodiscard]]
-            float get_current() const
+            constexpr float get_current() const
             {
                 return read_signed_scaled(data_register::current, m_current_resolution);
             }
@@ -380,7 +380,7 @@ namespace vtx
              * @note The device must be calibrated using @ref set_shunt_resistor_range before this value is meaningful.
              */
             [[nodiscard]]
-            float get_power() const
+            constexpr float get_power() const
             {
                 return read_signed_scaled(data_register::power, m_power_resolution);
             }
@@ -391,7 +391,7 @@ namespace vtx
              * @return Raw 16-bit manufacturer ID value.
              */
             [[nodiscard]]
-            static std::uint16_t get_manufacturer_id()
+            constexpr std::uint16_t get_manufacturer_id() const
             {
                 return read(data_register::manufacturer_id);
             }
@@ -402,7 +402,7 @@ namespace vtx
              * @return Raw 16-bit die ID value.
              */
             [[nodiscard]]
-            static std::uint16_t get_die_id()
+            constexpr std::uint16_t get_die_id() const
             {
                 return read(data_register::die_id);
             }
@@ -416,11 +416,9 @@ namespace vtx
              *
              * @see mask_enable
              */
-            static void set_mask_enable_bits(mask_enable const bits)
+            constexpr void set_mask_enable_bits(mask_enable const bits) const
             {
-                write(
-                    data_register::mask_enable,
-                    std::to_underlying(bits));
+                write(data_register::mask_enable,std::to_underlying(bits));
             }
 
             /**
@@ -431,7 +429,7 @@ namespace vtx
              * @return Alert status bits.
              */
             [[nodiscard]]
-            static std::uint8_t get_alert_bits()
+            constexpr std::uint8_t get_alert_bits() const
             {
                 return static_cast<std::uint8_t>((read(data_register::mask_enable) >> 2) & 0b111);
             }
@@ -444,7 +442,7 @@ namespace vtx
              *
              * @param limit Raw 16-bit alert limit value.
              */
-            static void set_alert_limit(std::uint16_t const limit)
+            constexpr void set_alert_limit(std::uint16_t const limit) const
             {
                 write(data_register::alert_limit, limit);
             }
@@ -459,7 +457,7 @@ namespace vtx
              * @return Raw 16-bit register value.
              */
             [[nodiscard]]
-            static std::uint16_t read(data_register const reg, std::uint32_t const timeout = HAL_MAX_DELAY)
+            constexpr std::uint16_t read(data_register const reg, std::uint32_t const timeout = HAL_MAX_DELAY) const
             {
                 std::uint8_t data[2]{};
 
@@ -482,7 +480,7 @@ namespace vtx
              * @return Raw register value interpreted as signed 16-bit integer.
              */
             [[nodiscard]]
-            static std::int16_t read_signed(data_register const reg)
+            constexpr std::int16_t read_signed(data_register const reg) const
             {
                 return static_cast<std::int16_t>(read(reg));
             }
@@ -496,7 +494,7 @@ namespace vtx
              * @return Scaled floating-point value.
              */
             [[nodiscard]]
-            static float read_scaled(data_register const reg, float const scaling)
+            constexpr float read_scaled(data_register const reg, float const scaling) const
             {
                 return static_cast<float>(read(reg)) * scaling;
             }
@@ -510,7 +508,7 @@ namespace vtx
              * @return Scaled floating-point value.
              */
             [[nodiscard]]
-            static float read_signed_scaled(data_register const reg, float const scaling)
+            constexpr float read_signed_scaled(data_register const reg, float const scaling) const
             {
                 return static_cast<float>(read_signed(reg)) * scaling;
             }
@@ -525,7 +523,7 @@ namespace vtx
              *
              * @return HAL status returned by HAL_I2C_Mem_Write.
              */
-            static auto write(data_register const reg, std::uint16_t const value)
+            constexpr auto write(data_register const reg, std::uint16_t const value) const
             {
                 std::uint8_t data[] = {
                     static_cast<std::uint8_t>(value >> 8),
@@ -553,11 +551,11 @@ namespace vtx
              *
              * @return Modified 16-bit register value.
              */
-            static constexpr auto set_bits(
+            constexpr auto set_bits(
                 std::uint16_t const reg_value,
                 std::uint8_t const value,
                 std::uint8_t const offset,
-                std::uint8_t const length = 3)
+                std::uint8_t const length = 3) const
             {
                 auto const mask = static_cast<std::uint16_t>(
                     ((std::uint16_t{1} << length) - 1u) << offset);
